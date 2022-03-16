@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: webapppy 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapppy
+  template:
+    metadata:
+      labels:
+        app: webapppy 
+    spec:
+      containers:
+        - name: webapppy 
+          image: vegerodevacr.azurecr.io/webapppy
+          ports:
+          - containerPort: 80

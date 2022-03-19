@@ -13,4 +13,4 @@ pool:
 steps:
 - script: echo This is CI pipeline triggered by a pull request!
   displayName: 'Run a one-line script'
-
+- script: echo Here I'll build a new docker image and push it to the repo.

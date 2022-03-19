@@ -107,7 +107,7 @@ stages:
 - stage: Deploy
   dependsOn:
   - Build
-  displayName: Deploy Image from Build to dev AKS
+  displayName: Deploy Image from Build to staging AKS
   jobs:
   - job: Deploy
     displayName: Deploy
@@ -136,7 +136,10 @@ stages:
         script: |
           build_manifest=$(cat $(Pipeline.Workspace)/variables/manifestname/manifestname)
           echo "##vso[task.setvariable variable=build_manifest]$build_manifest"
-          echo $(build_manifest)
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: 'echo $(build_manifest)'
 ###############################-----------GET NEW YAML-----------###############################
     # - task: AzureCLI@2
     #   displayName: Download manifest from blob storage

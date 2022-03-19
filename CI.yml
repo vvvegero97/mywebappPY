@@ -38,7 +38,7 @@ stages:
         command: build
         dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
         tags: |
-          $(GitVersion.FullSemVer)
+          $(GitVersion.SemVer)
     - task: Docker@2
       displayName: Push to DockerHub
       inputs:
@@ -46,7 +46,7 @@ stages:
         repository: $(DHrepo)
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
-        tags: '$(GitVersion.FullSemVer)'
+        tags: '$(GitVersion.SemVer)'
 ###############################-----------FINISH TEXT-----------###############################
     - task: Bash@3
       inputs:
@@ -55,7 +55,7 @@ stages:
           cat << EOF
           Image was tagged and pushed to dockerhub repo.
           To test the image, type the following in your command line:
-          'docker run -d -p 5000:5000 $(DHrepo):$(GitVersion.FullSemVer)'
+          'docker run -d -p 5000:5000 $(DHrepo):$(GitVersion.SemVer)'
           And open localhost:5000 in your browser.
           If all is working as expected, feel free to merge!
           EOF

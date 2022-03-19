@@ -16,5 +16,5 @@ steps:
 - task: Bash@3
   inputs:
     targetType: 'inline'
-    script: 'echo Here I''ll build a new docker image and push it to the repo.'
+    script: 'echo Here I will build a new docker image and push it to the repo.'
 

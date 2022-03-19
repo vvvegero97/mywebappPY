@@ -9,15 +9,55 @@ pr:
    include:
      - master
      - dev
+name: '$(GitVersion.FullSemVer)-Build'
+variables:
+- name: DHrepo
+  value: 'vvvegero97/pythonweb'
+stages:
+#############################################################################################
+###############################----------BUILD STAGE----------###############################
+#############################################################################################
+- stage: Build
+  displayName: Build image
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: ubuntu-latest
+###############################----------GIT VERSION----------###############################
+    steps:
+    - task: gitversion/setup@0
+      inputs:
+        versionSpec: '5.x'
+    - task: gitversion/execute@0
+      displayName: Determine Version
+###############################--------DOCKER BUILD-PUSH--------###############################
+    - task: Docker@2
+      displayName: Build a docker image
+      inputs:
+        command: build
+        dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+        tags: |
+          $(GitVersion.FullSemVer)
+    - task: Docker@2
+      displayName: Push to DockerHub
+      inputs:
+        containerRegistry: 'dockerhub'
+        repository: $(DHrepo)
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        tags: '$(GitVersion.FullSemVer)'
+###############################-----------FINISH TEXT-----------###############################
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: |
+          cat << EOF
+          Image was tagged and pushed to dockerhub repo.
+          To test the image, type the following in your command line:
+          'docker run -d -p 5000:5000 $(DHrepo):$(GitVersion.FullSemVer)'
+          And open localhost:5000 in your browser.
+          If all is working as expected, feel free to merge!
+          EOF
 
-pool:
-  vmImage: ubuntu-latest
-
-steps:
-- script: echo This is CI pipeline triggered by a pull request!
-  displayName: 'Run a one-line script'
-- task: Bash@3
-  inputs:
-    targetType: 'inline'
-    script: 'echo Here I will build a new docker image and push it to the repo.'
 

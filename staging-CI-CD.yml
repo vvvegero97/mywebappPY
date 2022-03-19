@@ -49,21 +49,21 @@ stages:
         ArtifactName: 'manifestname'
         publishLocation: 'Container'
 # ###############################--------DOCKER BUILD-PUSH--------###############################
-#     - task: Docker@2
-#       displayName: Build an image
-#       inputs:
-#         command: build
-#         dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-#         tags: |
-#           $(tag)
-#     - task: Docker@2
-#       displayName: Push to DockerHub
-#       inputs:
-#         containerRegistry: 'dockerhub'
-#         repository: $(DHrepo)
-#         command: 'buildAndPush'
-#         Dockerfile: '**/Dockerfile'
-#         tags: '$(tag)'
+    - task: Docker@2
+      displayName: Build an image
+      inputs:
+        command: build
+        dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+        tags: |
+          $(tag)
+    - task: Docker@2
+      displayName: Push to DockerHub
+      inputs:
+        containerRegistry: 'dockerhub'
+        repository: $(DHrepo)
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        tags: '$(tag)'
 ###############################-----------KEY VAULT-----------###############################
     - task: AzureKeyVault@2
       displayName: Get secrets
@@ -94,13 +94,13 @@ stages:
           echo 'contents of new manifest:'
           cat $(tag).yaml
         workingDirectory: '$(Build.SourcesDirectory)/blob-mnfst'
-    # - task: AzureCLI@2
-    #   displayName: Upload new manifest to blob storage
-    #   inputs:
-    #     azureSubscription: 'AZURE SPN'
-    #     scriptType: 'bash'
-    #     scriptLocation: 'inlineScript'
-    #     inlineScript: 'az storage blob upload --account-name $(storage-account-name) --account-key $(storage-account-key) -f $(Build.SourcesDirectory)/blob-mnfst/$(tag).yaml -c $(container_name) -n $(tag).yaml'
+    - task: AzureCLI@2
+      displayName: Upload new manifest to blob storage
+      inputs:
+        azureSubscription: 'AZURE SPN'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: 'az storage blob upload --account-name $(storage-account-name) --account-key $(storage-account-key) -f $(Build.SourcesDirectory)/blob-mnfst/$(tag).yaml -c $(container_name) -n $(tag).yaml'
 #############################################################################################
 ###############################----------DEPLOY STAGE----------##############################
 #############################################################################################
@@ -141,33 +141,33 @@ stages:
         targetType: 'inline'
         script: 'echo $(build_manifest)'
 ###############################-----------GET NEW YAML-----------###############################
-    # - task: AzureCLI@2
-    #   displayName: Download manifest from blob storage
-    #   inputs:
-    #     azureSubscription: 'AZURE SPN'
-    #     scriptType: 'bash'
-    #     scriptLocation: 'inlineScript'
-    #     inlineScript: |
-    #       mkdir $(Pipeline.Workspace)/manifest
-    #            az storage blob download --account-name $(storage-account-name) --account-key $(storage-account-key) --container-name $(container_name) --file $(Pipeline.Workspace)/manifest/$(build_manifest) --name $(build_manifest)
-    # - task: Bash@3
-    #   displayName: Display Results
-    #   inputs:
-    #     targetType: 'inline'
-    #     script: |
-    #       echo 'downloaded file contents:'
-    #       cat $(build_manifest)
-    #     workingDirectory: '$(Pipeline.Workspace)/manifest'
-# ###############################-----------DEPLOY NEW YAML-----------###############################
-#     - task: Kubernetes@1
-#       displayName: Deploy to K8S Cluster using downloaded manifest
-#       inputs:
-#         connectionType: 'Kubernetes Service Connection'
-#         kubernetesServiceEndpoint: 'mySTAGcluster' 
-#         namespace: 'default'
-#         command: 'apply'
-#         useConfigurationFile: true
-#         configuration: '$(Pipeline.Workspace)/manifest/$(build_manifest)'
-#         secretType: 'dockerRegistry'
-#         containerRegistryType: 'Azure Container Registry'
+    - task: AzureCLI@2
+      displayName: Download manifest from blob storage
+      inputs:
+        azureSubscription: 'AZURE SPN'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          mkdir $(Pipeline.Workspace)/manifest
+               az storage blob download --account-name $(storage-account-name) --account-key $(storage-account-key) --container-name $(container_name) --file $(Pipeline.Workspace)/manifest/$(build_manifest) --name $(build_manifest)
+    - task: Bash@3
+      displayName: Display Results
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo 'downloaded file contents:'
+          cat $(build_manifest)
+        workingDirectory: '$(Pipeline.Workspace)/manifest'
+###############################-----------DEPLOY NEW YAML-----------###############################
+    - task: Kubernetes@1
+      displayName: Deploy to K8S Cluster using downloaded manifest
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        kubernetesServiceEndpoint: 'mySTAGcluster' 
+        namespace: 'default'
+        command: 'apply'
+        useConfigurationFile: true
+        configuration: '$(Pipeline.Workspace)/manifest/$(build_manifest)'
+        secretType: 'dockerRegistry'
+        containerRegistryType: 'Azure Container Registry'
 

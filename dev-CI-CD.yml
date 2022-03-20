@@ -57,7 +57,7 @@ stages:
         targetType: 'inline'
         script: |
           mkdir -p $(Pipeline.Workspace)/variables
-          echo $(tag) > $(Pipeline.Workspace)/variables/manifestname
+          echo $(tag) > $(Pipeline.Workspace)/variables/imagetag
     - task: PublishBuildArtifacts@1
       displayName: Publish manifest name for Deploy Stage
       inputs:
@@ -97,7 +97,7 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          build_tag=$(cat $(Pipeline.Workspace)/variables/manifestname/manifestname)
+          build_tag=$(cat $(Pipeline.Workspace)/variables/imagetag/imagetag)
           echo "##vso[task.setvariable variable=build_tag]$build_tag"
     - task: Bash@3
       displayName: Show image tag from build

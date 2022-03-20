@@ -15,7 +15,7 @@ variables:
 - name: DHrepo
   value: 'vvvegero97/pythonweb'
 - name: tag
-  value: '$(GitVersion.SemVer)-$(GitVersion.BranchName)'
+  value: '$(GitVersion.SemVer)-$(GitVersion.BranchName)-$(BuildMetaData)'
 #############################################################################################
 ###############################----------BUILD STAGE----------###############################
 #############################################################################################
